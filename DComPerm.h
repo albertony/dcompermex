@@ -123,12 +123,22 @@ ChangeAppIDAccessACL (
     );
 
 DWORD
+ClearAppIDAccessACL (
+    LPTSTR tszAppID
+    );
+
+DWORD
 ChangeAppIDLaunchAndActivateACL (
     LPTSTR AppID,
     LPTSTR Principal,
     BOOL SetPrincipal,
     BOOL Permit,
     DWORD dwAccessMask
+    );
+
+DWORD
+ClearAppIDLaunchAndActivateACL (
+    PTSTR tszAppID
     );
 
 DWORD GetRunAsPassword (
@@ -228,6 +238,12 @@ RemovePrincipalFromNamedValueSD (
     LPTSTR ValueName,
     LPTSTR Principal,
     DWORD fAceType
+    );
+
+DWORD ClearNamedValueSD (
+    HKEY hkeyRoot,
+    LPTSTR tszKeyName,
+    LPTSTR tszValueName
     );
 
 BOOL

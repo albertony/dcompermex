@@ -26,7 +26,7 @@ void ShowUsage (
     BOOL fLegacy = IsLegacySecurityModel();
 
     _tprintf (_T("%s\n"), tszErrorString);
-    _tprintf (_T("Syntax: dcomperm <option> [...]\n\n"));
+    _tprintf (_T("Syntax: DcomPermEx <option> [...]\n\n"));
 
     _tprintf (_T("Options:\n"));
 
@@ -55,14 +55,25 @@ void ShowUsage (
     _tprintf (_T("   -aa <AppID> <\"set\" or \"remove\"> <Principal Name> [\"permit\" or \"deny\"] "));
     if(!fLegacy) _tprintf (_T("[\"level:l,r\"]\n")); else _tprintf (_T("\n"));
     _tprintf (_T("   -aa <AppID> default\n"));
+    _tprintf (_T("   -aa <AppID> none\n"));
     _tprintf (_T("   -aa <AppID> list [xml]\n"));
     _tprintf (_T("       Modify or list the access permission list for a specific AppID\n\n"));
 
     _tprintf (_T("   -al <AppID> <\"set\" or \"remove\"> <Principal Name> [\"permit\" or \"deny\"] "));
     if(!fLegacy) _tprintf (_T("[\"level:l,r,ll,la,rl,ra\"]\n")); else _tprintf (_T("\n"));
     _tprintf (_T("   -al <AppID> default\n"));
+    _tprintf (_T("   -al <AppID> none\n"));
     _tprintf (_T("   -al <AppID> list [xml]\n"));
     _tprintf (_T("       Modify or list the launch permission list for a specific AppID\n\n"));
+
+    _tprintf (_T("Press any key to continue. . ."));
+    _getch();
+    _tprintf (_T("\r                               \r"));
+
+    _tprintf (_T("   -runas <AppID> <Principal Name> <Password>\n"));
+    _tprintf (_T("   -runas <AppID> \"Interactive User\"\n"));
+    _tprintf (_T("   -runas <AppID> \"Launching User\"\n"));
+    _tprintf (_T("       Set the RunAs information for a specific AppID\n\n"));
 
     if(!fLegacy)
     {
@@ -74,15 +85,6 @@ void ShowUsage (
         _tprintf (_T("\tl  - local (local access - means launch and activate when used with {ml, dl, al} options)  \n"));
         _tprintf (_T("\tr  - remote (remote access - means launch and activate when used with {ml, dl, al} options)  \n\n"));
     }
-
-    _tprintf (_T("Press any key to continue. . ."));
-    _getch();
-    _tprintf (_T("\r                               \r"));
-
-    _tprintf (_T("   -runas <AppID> <Principal Name> <Password>\n"));
-    _tprintf (_T("   -runas <AppID> \"Interactive User\"\n"));
-    _tprintf (_T("   -runas <AppID> \"Launching User\"\n"));
-    _tprintf (_T("       Set the RunAs information for a specific AppID\n\n"));
 
     _tprintf (_T("Examples:\n"));
     _tprintf (_T("   dcomperm -da set redmond\\t-miken permit"));
@@ -548,8 +550,7 @@ void HandleApplicationAccessOption (
         ListAppIDAccessACL (pptszArgv[2], fXml);
         return;
     }
-
-    if (_tcsicmp (pptszArgv[3], _T("DEFAULT")) == 0)
+    else if (_tcsicmp (pptszArgv[3], _T("DEFAULT")) == 0)
     {
 
         _stprintf_s (tszAppID, RTL_NUMBER_OF(tszAppID), pptszArgv [2][0] == '{' ? _T("%s") : _T("{%s}"), pptszArgv [2]);
@@ -570,7 +571,17 @@ void HandleApplicationAccessOption (
         if(hkeyRegistry) RegCloseKey (hkeyRegistry);
 
         _tprintf (_T("Successfully set the Application Access to the machine default.\n"));
-        
+
+        return;
+    }
+    else if (_tcsicmp(pptszArgv[3], _T("NONE")) == 0)
+    {
+        dwReturnValue = ClearAppIDAccessACL(pptszArgv[2]);
+        if (dwReturnValue != ERROR_SUCCESS)
+        {
+            Error (_T("ERROR: Cannot clear the application access ACL."), dwReturnValue);
+        }
+        _tprintf (_T("Successfully cleared the application access ACL (Application Access is denied for everyone).\n"));
         return;
     }
 
@@ -615,7 +626,6 @@ void HandleApplicationAccessOption (
         {
             Error (_T("ERROR: Cannot remove user from application access ACL."), dwReturnValue);
         }
-        
     } 
     else
     {
@@ -649,14 +659,11 @@ void HandleApplicationLaunchAndActivateOption (
         ListAppIDLaunchACL (pptszArgv[2], fXml);
         return;
     }
-
-    if (_tcsicmp (pptszArgv[3], _T("DEFAULT")) == 0)
+    else if (_tcsicmp (pptszArgv[3], _T("DEFAULT")) == 0)
     {
-
 
         _stprintf_s (tszAppID, RTL_NUMBER_OF(tszAppID), pptszArgv [2][0] == '{' ? _T("%s") : _T("{%s}"), pptszArgv [2]);
         _stprintf_s (tszKeyName, RTL_NUMBER_OF(tszKeyName), _T("APPID\\%s"), tszAppID);
-
 
         dwReturnValue = RegOpenKeyEx (HKEY_CLASSES_ROOT, tszKeyName, 0, KEY_ALL_ACCESS, &hkeyRegistry);
         if (dwReturnValue != ERROR_SUCCESS && dwReturnValue != ERROR_FILE_NOT_FOUND)
@@ -674,6 +681,16 @@ void HandleApplicationLaunchAndActivateOption (
 
         _tprintf (_T("Successfully set the Application Launch to the machine default.\n"));
 
+        return;
+    }
+    else if (_tcsicmp(pptszArgv[3], _T("NONE")) == 0)
+    {
+        dwReturnValue = ClearAppIDLaunchAndActivateACL(pptszArgv[2]);
+        if (dwReturnValue != ERROR_SUCCESS)
+        {
+            Error (_T("ERROR: Cannot clear the application launch ACL."), dwReturnValue);
+        }
+         _tprintf (_T("Successfully cleared the application launch ACL (Application Launch is denied for everyone).\n"));
         return;
     }
 
