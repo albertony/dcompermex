@@ -18,6 +18,9 @@
     <ClInclude Include="DComPerm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DComPerm_rc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AclMgmt.Cpp">
@@ -41,5 +44,10 @@
     <ClCompile Include="Wrappers.Cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DcomPerm.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

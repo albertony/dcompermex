@@ -60,6 +60,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -72,9 +75,13 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DComPerm.h" />
+    <ClInclude Include="DComPerm_rc.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AclMgmt.Cpp" />
@@ -84,6 +91,9 @@
     <ClCompile Include="SrvcMgmt.Cpp" />
     <ClCompile Include="UtilS.Cpp" />
     <ClCompile Include="Wrappers.Cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DcomPerm.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

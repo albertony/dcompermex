@@ -5,29 +5,25 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 
-
 #include <windows.h>
 #include <stdio.h>
 #include <conio.h>
 #include <tchar.h>
 #include "ntsecapi.h"
 #include "dcomperm.h"
+#include "dcomperm_rc.h"
 
 /*---------------------------------------------------------------------------*\
  * NAME: HandleDefaultLaunchOption                                           *
  * --------------------------------------------------------------------------*
  * DESCRIPTION: 
 \*---------------------------------------------------------------------------*/
-void ShowUsage (
-    LPTSTR tszErrorString
-    )
-{
 
+void ShowUsage ( )
+{
     BOOL fLegacy = IsLegacySecurityModel();
 
-    _tprintf (_T("%s\n"), tszErrorString);
-    _tprintf (_T("Syntax: DcomPermEx <option> [...]\n\n"));
-
+    _tprintf (_T("Syntax: %s <option> [...]\n\n"), _T(APPLICATION_FILENAME));
     _tprintf (_T("Options:\n"));
 
     if(!fLegacy)
@@ -68,22 +64,26 @@ void ShowUsage (
 
     _tprintf (_T("Press any key to continue. . ."));
     _getch();
-    _tprintf (_T("\r                               \r"));
+    _tprintf (_T("\r\r"));
 
     _tprintf (_T("   -runas <AppID> <Principal Name> <Password>\n"));
     _tprintf (_T("   -runas <AppID> \"Interactive User\"\n"));
     _tprintf (_T("   -runas <AppID> \"Launching User\"\n"));
     _tprintf (_T("       Set the RunAs information for a specific AppID\n\n"));
 
+    _tprintf(_T("   -help\n"));
+    _tprintf(_T("   -version\n"));
+    _tprintf (_T("       Show this help and the application version\n\n"));
+
     if(!fLegacy)
     {
-        _tprintf (_T("level: \n"));
-        _tprintf (_T("\tll - local launch (only applies to {ml, dl, al} options)  \n"));
-        _tprintf (_T("\trl - remote launch (only applies to {ml, dl, al} options)  \n"));
-        _tprintf (_T("\tla - local activate (only applies to {ml, dl, al} options)  \n"));
-        _tprintf (_T("\tra - remote activate (only applies to {ml, dl, al} options)  \n"));
-        _tprintf (_T("\tl  - local (local access - means launch and activate when used with {ml, dl, al} options)  \n"));
-        _tprintf (_T("\tr  - remote (remote access - means launch and activate when used with {ml, dl, al} options)  \n\n"));
+        _tprintf (_T("level:\n"));
+        _tprintf (_T("   ll - local launch (only applies to {ml, dl, al} options)  \n"));
+        _tprintf (_T("   rl - remote launch (only applies to {ml, dl, al} options)  \n"));
+        _tprintf (_T("   la - local activate (only applies to {ml, dl, al} options)  \n"));
+        _tprintf (_T("   ra - remote activate (only applies to {ml, dl, al} options)  \n"));
+        _tprintf (_T("   l  - local (local access - means launch and activate when used with {ml, dl, al} options)  \n"));
+        _tprintf (_T("   r  - remote (remote access - means launch and activate when used with {ml, dl, al} options)  \n\n"));
     }
 
     _tprintf (_T("Examples:\n"));
@@ -98,6 +98,25 @@ void ShowUsage (
     exit (0);
 }
 
+void ShowHelp ( )
+{
+    _tprintf (_T("%s: %s\n"), _T(PRODUCT_NAME), _T(APPLICATION_DESCRIPTION));
+    _tprintf(_T("Version %s\n\n"), _T(PRODUCT_VERSION_STRING));
+    ShowUsage ();
+}
+
+void ShowWrongUsage (
+    LPTSTR tszErrorString
+    )
+{
+    _tprintf (_T("%s\n"), tszErrorString);
+    ShowUsage();
+}
+
+void ShowVersion ()
+{
+    _tprintf (_T("%s version %s\n"), _T(PRODUCT_NAME), _T(PRODUCT_VERSION_STRING));
+}
 /*---------------------------------------------------------------------------*\
  * NAME: HandleDefaultLaunchOption                                           *
  * --------------------------------------------------------------------------*
@@ -135,14 +154,14 @@ void SetAccessMaskFromCommandLine (
 
     if(!ptszToken || _tcsicmp (ptszToken, _T("LEVEL")) != 0)
     {
-        ShowUsage(_T("Invalid LEVEL argument"));
+        ShowWrongUsage(_T("Invalid LEVEL argument"));
     }
 
     ptszToken = _tcstok_s(NULL, _T(","), &ptszContext);
 
     if(!ptszToken)
     {
-        ShowUsage(_T("Invalid LEVEL argument"));
+        ShowWrongUsage(_T("Invalid LEVEL argument"));
     }
 
     if(dwSDType & SDTYPE_ACCESS) do
@@ -158,7 +177,7 @@ void SetAccessMaskFromCommandLine (
         }
         else
         {
-            ShowUsage(_T("Invalid LEVEL argument"));
+            ShowWrongUsage(_T("Invalid LEVEL argument"));
         }
 
     }while(ptszToken = _tcstok_s(NULL, _T(","), &ptszContext));
@@ -191,7 +210,7 @@ void SetAccessMaskFromCommandLine (
         }
         else
         {
-            ShowUsage(_T("Invalid LEVEL argument"));
+            ShowWrongUsage(_T("Invalid LEVEL argument"));
         }
 
     }while(ptszToken = _tcstok_s(NULL, _T(","), &ptszContext));
@@ -212,7 +231,7 @@ void HandleMachineAccessOption (
     DWORD dwReturnValue = ERROR_SUCCESS;
     DWORD dwAccessMask = COM_RIGHTS_EXECUTE;
 
-    if (cArgs < 3) ShowUsage (_T("Invalid number of arguments."));
+    if (cArgs < 3) ShowWrongUsage(_T("Invalid number of arguments."));
 
     if (_tcsicmp (pptszArgv [2], _T("LIST")) == 0)
     {
@@ -226,11 +245,11 @@ void HandleMachineAccessOption (
         return;
     }
 
-    if (cArgs < 4) ShowUsage (_T("Invalid number of arguments."));
+    if (cArgs < 4) ShowWrongUsage(_T("Invalid number of arguments."));
 
     if (_tcsicmp (pptszArgv [2], _T("SET")) == 0)
     {
-        if (cArgs < 5) ShowUsage (_T("Invalid number of arguments."));
+        if (cArgs < 5) ShowWrongUsage(_T("Invalid number of arguments."));
 
         if(cArgs == 6) 
         {
@@ -251,7 +270,7 @@ void HandleMachineAccessOption (
         }
         else
         {
-            ShowUsage (_T("You can only set a user's permissions to \"permit\" or \"deny\".\n\n"));
+            ShowWrongUsage (_T("You can only set a user's permissions to \"permit\" or \"deny\".\n\n"));
         }
 
         if (dwReturnValue != ERROR_SUCCESS)
@@ -270,7 +289,7 @@ void HandleMachineAccessOption (
     } 
     else
     {
-        ShowUsage (_T("You can only \"set\" or \"remove\" a user."));
+        ShowWrongUsage (_T("You can only \"set\" or \"remove\" a user."));
     }
 
      _tprintf (_T("Successfully set the Machine Access ACL.\n"));
@@ -294,7 +313,7 @@ void HandleMachineLaunchAndActivateOption (
     DWORD dwAccessMask = COM_RIGHTS_EXECUTE;
 
 
-    if (cArgs < 3) ShowUsage (_T("Invalid number of arguments."));
+    if (cArgs < 3) ShowWrongUsage (_T("Invalid number of arguments."));
 
     if (_tcsicmp (pptszArgv [2], _T("LIST")) == 0)
     {
@@ -310,11 +329,11 @@ void HandleMachineLaunchAndActivateOption (
         return;
     }
 
-    if (cArgs < 4) ShowUsage (_T("Invalid number of arguments."));
+    if (cArgs < 4) ShowWrongUsage(_T("Invalid number of arguments."));
 
     if (_tcsicmp (pptszArgv [2], _T("SET")) == 0)
     {
-        if (cArgs < 5) ShowUsage (_T("Invalid number of arguments."));
+        if (cArgs < 5) ShowWrongUsage(_T("Invalid number of arguments."));
 
         if(cArgs == 6) 
         {
@@ -335,7 +354,7 @@ void HandleMachineLaunchAndActivateOption (
         }
         else
         {
-            ShowUsage (_T("You can only set a user's permissions to \"permit\" or \"deny\".\n\n"));
+            ShowWrongUsage (_T("You can only set a user's permissions to \"permit\" or \"deny\".\n\n"));
         }
 
         if (dwReturnValue != ERROR_SUCCESS)
@@ -355,7 +374,7 @@ void HandleMachineLaunchAndActivateOption (
     } 
     else
     {
-        ShowUsage (_T("You can only \"set\" or \"remove\" a user."));
+        ShowWrongUsage (_T("You can only \"set\" or \"remove\" a user."));
     }
     
      _tprintf (_T("Successfully set the Machine Launch ACL.\n"));
@@ -379,7 +398,7 @@ void HandleDefaultAccessOption (
     DWORD dwReturnValue = ERROR_SUCCESS;
     DWORD dwAccessMask = COM_RIGHTS_EXECUTE;
 
-    if (cArgs < 3) ShowUsage (_T("Invalid number of arguments."));
+    if (cArgs < 3) ShowWrongUsage (_T("Invalid number of arguments."));
 
     if (_tcsicmp (pptszArgv [2], _T("LIST")) == 0)
     {
@@ -393,11 +412,11 @@ void HandleDefaultAccessOption (
         return;
     }
 
-    if (cArgs < 4) ShowUsage (_T("Invalid number of arguments."));
+    if (cArgs < 4) ShowWrongUsage (_T("Invalid number of arguments."));
 
     if (_tcsicmp (pptszArgv [2], _T("SET")) == 0)
     {
-        if (cArgs < 5) ShowUsage (_T("Invalid number of arguments."));
+        if (cArgs < 5) ShowWrongUsage (_T("Invalid number of arguments."));
 
         if(cArgs == 6) 
         {
@@ -418,7 +437,7 @@ void HandleDefaultAccessOption (
         }
         else
         {
-            ShowUsage (_T("You can only set a user's permissions to \"permit\" or \"deny\".\n\n"));
+            ShowWrongUsage (_T("You can only set a user's permissions to \"permit\" or \"deny\".\n\n"));
         }
 
         if (dwReturnValue != ERROR_SUCCESS)
@@ -437,7 +456,7 @@ void HandleDefaultAccessOption (
     } 
     else
     {
-        ShowUsage (_T("You can only \"set\" or \"remove\" a user."));
+        ShowWrongUsage (_T("You can only \"set\" or \"remove\" a user."));
     }
 
      _tprintf (_T("Successfully set the Default Access ACL.\n"));
@@ -458,7 +477,7 @@ void HandleDefaultLaunchOption (
     DWORD dwReturnValue = ERROR_SUCCESS;
     DWORD dwAccessMask = COM_RIGHTS_EXECUTE;
 
-    if (cArgs < 3) ShowUsage (_T("Invalid number of arguments."));
+    if (cArgs < 3) ShowWrongUsage (_T("Invalid number of arguments."));
 
     if (_tcsicmp (pptszArgv [2], _T("LIST")) == 0)
     {
@@ -474,11 +493,11 @@ void HandleDefaultLaunchOption (
         return;
     }
 
-    if (cArgs < 4) ShowUsage (_T("Invalid number of arguments."));
+    if (cArgs < 4) ShowWrongUsage (_T("Invalid number of arguments."));
 
     if (_tcsicmp (pptszArgv [2], _T("SET")) == 0)
     {
-        if (cArgs < 5) ShowUsage (_T("Invalid number of arguments."));
+        if (cArgs < 5) ShowWrongUsage (_T("Invalid number of arguments."));
 
         if(cArgs == 6) 
         {
@@ -499,7 +518,7 @@ void HandleDefaultLaunchOption (
         }
         else
         {
-            ShowUsage (_T("You can only set a user's permissions to \"permit\" or \"deny\".\n\n"));
+            ShowWrongUsage (_T("You can only set a user's permissions to \"permit\" or \"deny\".\n\n"));
         }
 
         if (dwReturnValue != ERROR_SUCCESS)
@@ -519,7 +538,7 @@ void HandleDefaultLaunchOption (
     } 
     else
     {
-        ShowUsage (_T("You can only \"set\" or \"remove\" a user."));
+        ShowWrongUsage (_T("You can only \"set\" or \"remove\" a user."));
     }
 
      _tprintf (_T("Successfully set the Default Launch ACL.\n"));
@@ -540,11 +559,11 @@ void HandleApplicationAccessOption (
     DWORD dwAccessMask = COM_RIGHTS_EXECUTE;
 
     if (cArgs < 4)
-        ShowUsage (_T("Invalid number of arguments."));
+        ShowWrongUsage (_T("Invalid number of arguments."));
 
     if (_tcsicmp (pptszArgv[3], _T("LIST")) == 0)
     {
-        if (cArgs < 4) ShowUsage (_T("Invalid number of arguments."));
+        if (cArgs < 4) ShowWrongUsage (_T("Invalid number of arguments."));
         BOOL fXml = cArgs > 4 && _tcsicmp (pptszArgv[4], _T("XML")) == 0;
         if (!fXml) _tprintf (_T("Access permission list for AppID %s:\n\n"), pptszArgv[2]);
         ListAppIDAccessACL (pptszArgv[2], fXml);
@@ -585,11 +604,11 @@ void HandleApplicationAccessOption (
         return;
     }
 
-    if (cArgs < 5) ShowUsage (_T("Invalid number of arguments."));
+    if (cArgs < 5) ShowWrongUsage (_T("Invalid number of arguments."));
 
     if (_tcsicmp (pptszArgv [3], _T("SET")) == 0)
     {
-         if (cArgs < 6) ShowUsage (_T("Invalid number of arguments."));
+         if (cArgs < 6) ShowWrongUsage (_T("Invalid number of arguments."));
 
         if(cArgs == 7) 
         {
@@ -610,7 +629,7 @@ void HandleApplicationAccessOption (
         }
         else
         {
-            ShowUsage (_T("You can only set a user's permissions to \"permit\" or \"deny\".\n\n"));
+            ShowWrongUsage (_T("You can only set a user's permissions to \"permit\" or \"deny\".\n\n"));
         }
 
         if (dwReturnValue != ERROR_SUCCESS)
@@ -629,7 +648,7 @@ void HandleApplicationAccessOption (
     } 
     else
     {
-        ShowUsage (_T("You can only \"set\" or \"remove\" a user."));
+        ShowWrongUsage (_T("You can only \"set\" or \"remove\" a user."));
     }
 
      _tprintf (_T("Successfully set the Application Access ACL.\n"));
@@ -649,11 +668,11 @@ void HandleApplicationLaunchAndActivateOption (
 
     DWORD dwAccessMask = COM_RIGHTS_EXECUTE;
     
-    if (cArgs < 4) ShowUsage (_T("Invalid number of arguments."));
+    if (cArgs < 4) ShowWrongUsage (_T("Invalid number of arguments."));
 
     if (_tcsicmp (pptszArgv[3], _T("LIST")) == 0)
     {
-        if (cArgs < 4) ShowUsage (_T("Invalid number of arguments.\n"));
+        if (cArgs < 4) ShowWrongUsage (_T("Invalid number of arguments.\n"));
         BOOL fXml = cArgs > 4 && _tcsicmp (pptszArgv[4], _T("XML")) == 0;
         if (!fXml) _tprintf (_T("Launch permission list for AppID %s:\n\n"), pptszArgv[2]);
         ListAppIDLaunchACL (pptszArgv[2], fXml);
@@ -694,11 +713,11 @@ void HandleApplicationLaunchAndActivateOption (
         return;
     }
 
-    if (cArgs < 5) ShowUsage (_T("Invalid number of arguments."));
+    if (cArgs < 5) ShowWrongUsage (_T("Invalid number of arguments."));
 
     if (_tcsicmp (pptszArgv [3], _T("SET")) == 0)
     {
-        if (cArgs < 6) ShowUsage (_T("Invalid number of arguments."));
+        if (cArgs < 6) ShowWrongUsage (_T("Invalid number of arguments."));
 
         if(cArgs == 7) 
         {
@@ -719,7 +738,7 @@ void HandleApplicationLaunchAndActivateOption (
         }
         else
         {
-            ShowUsage (_T("You can only set a user's permissions to \"permit\" or \"deny\".\n\n"));
+            ShowWrongUsage (_T("You can only set a user's permissions to \"permit\" or \"deny\".\n\n"));
         }
 
         if (dwReturnValue != ERROR_SUCCESS)
@@ -736,7 +755,7 @@ void HandleApplicationLaunchAndActivateOption (
     } 
     else
     {
-        ShowUsage (_T("You can only \"set\" or \"remove\" a user."));
+        ShowWrongUsage (_T("You can only \"set\" or \"remove\" a user."));
     }
 
      _tprintf (_T("Successfully set the Application Launch ACL.\n"));
@@ -754,7 +773,7 @@ void HandleRunAsOption (
     TCHAR tszAppID [SIZE_NAME_BUFFER]   = {0};
     TCHAR tszKeyName [SIZE_NAME_BUFFER] = {0};
 
-    if (cArgs < 4) ShowUsage (_T("Invalid number of arguments."));
+    if (cArgs < 4) ShowWrongUsage (_T("Invalid number of arguments."));
 
     _stprintf_s (tszAppID, RTL_NUMBER_OF(tszAppID), pptszArgv [2][0] == '{' ? _T("%s") : _T("{%s}"), pptszArgv [2]);
     _stprintf_s (tszKeyName, RTL_NUMBER_OF(tszKeyName), _T("APPID\\%s"), tszAppID);
@@ -783,7 +802,7 @@ void HandleRunAsOption (
     {
         if (_tcsicmp (pptszArgv[3], _T("INTERACTIVE USER")) != 0)
         {
-            if (cArgs < 5) ShowUsage (_T("Invalid number of arguments."));
+            if (cArgs < 5) ShowWrongUsage (_T("Invalid number of arguments."));
 
             dwReturnValue = SetRunAsPassword (pptszArgv[2], pptszArgv[3], pptszArgv[4]);
             if (dwReturnValue != ERROR_SUCCESS)
@@ -809,9 +828,18 @@ extern "C" void _tmain (
     TCHAR **pptszArgv
     )
 {
-    if (cArgs < 2) ShowUsage (_T("No option specified."));
 
-    if (_tcsicmp (pptszArgv [1], _T("-DA")) == 0)
+    if (cArgs < 2) ShowWrongUsage (_T("No option specified."));
+
+    if (_tcsicmp (pptszArgv[1], _T("-HELP")) == 0)
+    {
+        ShowHelp ();
+    }
+    else if (_tcsicmp (pptszArgv[1], _T("-VERSION")) == 0)
+    {
+        ShowVersion ();
+    }
+    else if (_tcsicmp (pptszArgv [1], _T("-DA")) == 0)
     {
         HandleDefaultAccessOption (cArgs, pptszArgv); 
     }
@@ -841,7 +869,7 @@ extern "C" void _tmain (
     }
     else
     {
-        ShowUsage (_T("Invalid option specified."));
+        ShowWrongUsage (_T("Invalid option specified."));
     }
     
 }

@@ -1,0 +1,27 @@
+#define COMPANY_NAME "albertony"
+#define COMPANY_WEB "github.com/albertony/dcompermex"
+#define PRODUCT_NAME "DcomPermEx"
+#define APPLICATION_NAME "DcomPermEx"
+#define APPLICATION_FILENAME APPLICATION_NAME ".exe"
+#define APPLICATION_DESCRIPTION "DCOM permission command line utility"
+
+#define VERSION_MAJOR 0
+#define VERSION_MINOR 1
+#define VERSION_PATCH 2
+#define VERSION_BUILD 0
+
+#define STRINGIFY_INDIRECT(x) #x
+#define STRINGIFY(x) STRINGIFY_INDIRECT(x)
+
+#define STRINGIFY_INDIRECT(x) #x
+#define STRINGIFY(x) STRINGIFY_INDIRECT(x)
+
+#define MAKE_FILE_VERSION_STRING(major,minor,patch,build) STRINGIFY(major) "." STRINGIFY(minor) "." STRINGIFY(patch) "." STRINGIFY(build)
+#ifdef _DEBUG
+#define MAKE_PRODUCT_VERSION_STRING(major,minor,patch,build) STRINGIFY(major) "." STRINGIFY(minor) "." STRINGIFY(patch) " (Debug)"
+#else
+#define MAKE_PRODUCT_VERSION_STRING(major,minor,patch,build) STRINGIFY(major) "." STRINGIFY(minor) "." STRINGIFY(patch)
+#endif
+
+#define FILE_VERSION_STRING MAKE_FILE_VERSION_STRING(VERSION_MAJOR,VERSION_MINOR,VERSION_PATCH,VERSION_BUILD)
+#define PRODUCT_VERSION_STRING MAKE_PRODUCT_VERSION_STRING(VERSION_MAJOR,VERSION_MINOR,VERSION_PATCH,VERSION_BUILD)
