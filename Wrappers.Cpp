@@ -20,12 +20,15 @@
  * --------------------------------------------------------------------------*
  * RETURNS: WIN32 Error Code                                                 *
 \*---------------------------------------------------------------------------*/
-DWORD ListMachineAccessACL()
+DWORD ListMachineAccessACL(
+    BOOL fXml
+    )
 {
     return ListNamedValueSD (HKEY_LOCAL_MACHINE, 
                              _T("Software\\Microsoft\\Ole"), 
                              _T("MachineAccessRestriction"), 
-                             SDTYPE_MACHINE_ACCESS);
+                             SDTYPE_MACHINE_ACCESS,
+                             fXml);
 }
 
 /*---------------------------------------------------------------------------*\
@@ -35,12 +38,15 @@ DWORD ListMachineAccessACL()
  * --------------------------------------------------------------------------*
  * RETURNS: WIN32 Error Code                                                 *
 \*---------------------------------------------------------------------------*/
-DWORD ListMachineLaunchACL()
+DWORD ListMachineLaunchACL(
+    BOOL fXml
+    )
 {
     return ListNamedValueSD (HKEY_LOCAL_MACHINE, 
                              _T("Software\\Microsoft\\Ole"), 
                              _T("MachineLaunchRestriction"), 
-                             SDTYPE_MACHINE_LAUNCH);
+                             SDTYPE_MACHINE_LAUNCH,
+                             fXml);
 }
 
 /*---------------------------------------------------------------------------*\
@@ -50,12 +56,15 @@ DWORD ListMachineLaunchACL()
  * --------------------------------------------------------------------------*
  * RETURNS: WIN32 Error Code                                                 *
 \*---------------------------------------------------------------------------*/
-DWORD ListDefaultAccessACL()
+DWORD ListDefaultAccessACL(
+    BOOL fXml
+    )
 {
     return ListNamedValueSD (HKEY_LOCAL_MACHINE, 
                              _T("Software\\Microsoft\\Ole"), 
                              _T("DefaultAccessPermission"), 
-                             SDTYPE_DEFAULT_ACCESS);
+                             SDTYPE_DEFAULT_ACCESS,
+                             fXml);
 }
 
 /*---------------------------------------------------------------------------*\
@@ -65,12 +74,15 @@ DWORD ListDefaultAccessACL()
  * --------------------------------------------------------------------------*
  * RETURNS: WIN32 Error Code                                                 *
 \*---------------------------------------------------------------------------*/
-DWORD ListDefaultLaunchACL()
+DWORD ListDefaultLaunchACL(
+    BOOL fXml
+    )
 {
     return ListNamedValueSD (HKEY_LOCAL_MACHINE, 
                              _T("Software\\Microsoft\\Ole"), 
                              _T("DefaultLaunchPermission"), 
-                             SDTYPE_DEFAULT_LAUNCH);
+                             SDTYPE_DEFAULT_LAUNCH,
+                             fXml);
 }
 
 /*---------------------------------------------------------------------------*\
@@ -81,7 +93,8 @@ DWORD ListDefaultLaunchACL()
  * RETURNS: WIN32 Error Code                                                 *
 \*---------------------------------------------------------------------------*/
 DWORD ListAppIDAccessACL (
-    LPTSTR tszAppID
+    LPTSTR tszAppID,
+    BOOL fXml
     )
 {
     TCHAR   tszKeyName [256] = {0};
@@ -94,7 +107,8 @@ DWORD ListAppIDAccessACL (
     return ListNamedValueSD (HKEY_CLASSES_ROOT, 
                              tszKeyName, 
                              _T("AccessPermission"), 
-                             SDTYPE_APPLICATION_ACCESS);
+                             SDTYPE_APPLICATION_ACCESS,
+                             fXml);
 }
 
 /*---------------------------------------------------------------------------*\
@@ -105,7 +119,8 @@ DWORD ListAppIDAccessACL (
  * RETURNS: WIN32 Error Code                                                 *
 \*---------------------------------------------------------------------------*/
 DWORD ListAppIDLaunchACL (
-    LPTSTR tszAppID
+    LPTSTR tszAppID,
+    BOOL fXml
     )
 {
     TCHAR   tszKeyName [256] = {0};
@@ -118,7 +133,8 @@ DWORD ListAppIDLaunchACL (
     return ListNamedValueSD (HKEY_CLASSES_ROOT, 
                              tszKeyName, 
                              _T("LaunchPermission"), 
-                             SDTYPE_APPLICATION_LAUNCH);
+                             SDTYPE_APPLICATION_LAUNCH,
+                             fXml);
 }
 
 

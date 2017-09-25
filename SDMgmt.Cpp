@@ -618,7 +618,8 @@ DWORD ListNamedValueSD (
     HKEY hkeyRoot,
     LPTSTR tszKeyName,
     LPTSTR tszValueName,
-    DWORD dwSDType
+    DWORD dwSDType,
+    BOOL fXml
     )
 {
     DWORD               dwReturnValue = ERROR_SUCCESS;
@@ -631,7 +632,10 @@ DWORD ListNamedValueSD (
 
     if (dwReturnValue != ERROR_SUCCESS)
     {
-        _tprintf (_T("<Using Default Permissions>\n"));
+        if (fXml)
+            _tprintf (_T("<permissions default=\"true\"/>\n"));
+        else
+            _tprintf (_T("<Using Default Permissions>\n"));
         goto CLEANUP;
     }
 
@@ -643,11 +647,14 @@ DWORD ListNamedValueSD (
 
     if (!fPresent)
     {
-        _tprintf (_T("<Access is denied to everyone>\n"));
+        if (fXml)
+            _tprintf (_T("<permissions/>\n"));
+        else
+            _tprintf (_T("<Access is denied to everyone>\n"));
         goto CLEANUP;
     }
 
-    ListACL (dacl, dwSDType);
+    ListACL (dacl, dwSDType, fXml);
 
 CLEANUP:
 

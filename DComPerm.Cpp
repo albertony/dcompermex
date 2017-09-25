@@ -33,35 +33,35 @@ void ShowUsage (
     if(!fLegacy)
     {
         _tprintf (_T("   -ma <\"set\" or \"remove\"> <Principal Name> [\"permit\" or \"deny\"] [\"level:l,r\"]\n"));
-        _tprintf (_T("   -ma list\n"));
+        _tprintf (_T("   -ma list [xml]\n"));
         _tprintf (_T("       Modify or list the machine access permission list\n\n"));
 
         _tprintf (_T("   -ml <\"set\" or \"remove\"> <Principal Name> [\"permit\" or \"deny\"] [\"level:l,r,ll,la,rl,ra\"]\n"));
-        _tprintf (_T("   -ml list\n"));
+        _tprintf (_T("   -ml list [xml]\n"));
         _tprintf (_T("       Modify or list the machine launch permission list\n\n"));
     }
 
     _tprintf (_T("   -da <\"set\" or \"remove\"> <Principal Name> [\"permit\" or \"deny\"] "));
     if(!fLegacy) _tprintf (_T("[\"level:l,r\"]\n")); else _tprintf (_T("\n"));
     
-    _tprintf (_T("   -da list\n"));
+    _tprintf (_T("   -da list [xml]\n"));
     _tprintf (_T("       Modify or list the default access permission list\n\n"));
 
     _tprintf (_T("   -dl <\"set\" or \"remove\"> <Principal Name> [\"permit\" or \"deny\"] "));
     if(!fLegacy) _tprintf (_T("[\"level:l,r,ll,la,rl,ra\"]\n")); else _tprintf (_T("\n"));
-    _tprintf (_T("   -dl list\n"));
+    _tprintf (_T("   -dl list [xml]\n"));
     _tprintf (_T("       Modify or list the default launch permission list\n\n"));
 
     _tprintf (_T("   -aa <AppID> <\"set\" or \"remove\"> <Principal Name> [\"permit\" or \"deny\"] "));
     if(!fLegacy) _tprintf (_T("[\"level:l,r\"]\n")); else _tprintf (_T("\n"));
     _tprintf (_T("   -aa <AppID> default\n"));
-    _tprintf (_T("   -aa <AppID> list\n"));
+    _tprintf (_T("   -aa <AppID> list [xml]\n"));
     _tprintf (_T("       Modify or list the access permission list for a specific AppID\n\n"));
 
     _tprintf (_T("   -al <AppID> <\"set\" or \"remove\"> <Principal Name> [\"permit\" or \"deny\"] "));
     if(!fLegacy) _tprintf (_T("[\"level:l,r,ll,la,rl,ra\"]\n")); else _tprintf (_T("\n"));
     _tprintf (_T("   -al <AppID> default\n"));
-    _tprintf (_T("   -al <AppID> list\n"));
+    _tprintf (_T("   -al <AppID> list [xml]\n"));
     _tprintf (_T("       Modify or list the launch permission list for a specific AppID\n\n"));
 
     if(!fLegacy)
@@ -214,8 +214,9 @@ void HandleMachineAccessOption (
 
     if (_tcsicmp (pptszArgv [2], _T("LIST")) == 0)
     {
-        _tprintf (_T("Machine access permission list:\n\n"));
-        dwReturnValue = ListMachineAccessACL();
+        BOOL fXml = cArgs > 3 && _tcsicmp (pptszArgv [3], _T("XML")) == 0;
+        if (!fXml) _tprintf (_T("Machine access permission list:\n\n"));
+        dwReturnValue = ListMachineAccessACL(fXml);
         if (dwReturnValue != ERROR_SUCCESS)
         {
             Error (_T("ERROR: Cannot list default access permission list."), dwReturnValue);
@@ -272,7 +273,7 @@ void HandleMachineAccessOption (
 
      _tprintf (_T("Successfully set the Machine Access ACL.\n"));
 
-    ListMachineAccessACL();
+    ListMachineAccessACL(FALSE);
 
 }
 
@@ -295,8 +296,9 @@ void HandleMachineLaunchAndActivateOption (
 
     if (_tcsicmp (pptszArgv [2], _T("LIST")) == 0)
     {
-        _tprintf (_T("Machine launch permission list:\n\n"));
-        dwReturnValue = ListMachineLaunchACL();
+        BOOL fXml = cArgs > 3 && _tcsicmp (pptszArgv [3], _T("XML")) == 0;
+        if (!fXml) _tprintf (_T("Machine launch permission list:\n\n"));
+        dwReturnValue = ListMachineLaunchACL(fXml);
 
         if (dwReturnValue != ERROR_SUCCESS)
         {
@@ -356,7 +358,7 @@ void HandleMachineLaunchAndActivateOption (
     
      _tprintf (_T("Successfully set the Machine Launch ACL.\n"));
 
-    ListMachineLaunchACL();
+    ListMachineLaunchACL(FALSE);
 
 }
 
@@ -379,8 +381,9 @@ void HandleDefaultAccessOption (
 
     if (_tcsicmp (pptszArgv [2], _T("LIST")) == 0)
     {
-        _tprintf (_T("Default access permission list:\n\n"));
-        dwReturnValue = ListDefaultAccessACL();
+        BOOL fXml = cArgs > 3 && _tcsicmp (pptszArgv [3], _T("XML")) == 0;
+        if (!fXml) _tprintf (_T("Default access permission list:\n\n"));
+        dwReturnValue = ListDefaultAccessACL(fXml);
         if (dwReturnValue != ERROR_SUCCESS)
         {
             Error (_T("ERROR: Cannot list default access permission list."), dwReturnValue);
@@ -437,7 +440,7 @@ void HandleDefaultAccessOption (
 
      _tprintf (_T("Successfully set the Default Access ACL.\n"));
 
-    ListDefaultAccessACL();
+    ListDefaultAccessACL(FALSE);
 }
 
 /*---------------------------------------------------------------------------*\
@@ -457,8 +460,9 @@ void HandleDefaultLaunchOption (
 
     if (_tcsicmp (pptszArgv [2], _T("LIST")) == 0)
     {
-        _tprintf (_T("Default launch permission list:\n\n"));
-        dwReturnValue = ListDefaultLaunchACL();
+        BOOL fXml = cArgs > 3 && _tcsicmp (pptszArgv [3], _T("XML")) == 0;
+        if (!fXml) _tprintf (_T("Default launch permission list:\n\n"));
+        dwReturnValue = ListDefaultLaunchACL(fXml);
 
         if (dwReturnValue != ERROR_SUCCESS)
         {
@@ -518,7 +522,7 @@ void HandleDefaultLaunchOption (
 
      _tprintf (_T("Successfully set the Default Launch ACL.\n"));
 
-    ListDefaultLaunchACL();
+    ListDefaultLaunchACL(FALSE);
 }
 
 void HandleApplicationAccessOption (
@@ -539,11 +543,9 @@ void HandleApplicationAccessOption (
     if (_tcsicmp (pptszArgv[3], _T("LIST")) == 0)
     {
         if (cArgs < 4) ShowUsage (_T("Invalid number of arguments."));
-
-        _tprintf (_T("Access permission list for AppID %s:\n\n"), pptszArgv[2]);
-        
-        ListAppIDAccessACL (pptszArgv[2]);
-        
+        BOOL fXml = cArgs > 4 && _tcsicmp (pptszArgv[4], _T("XML")) == 0;
+        if (!fXml) _tprintf (_T("Access permission list for AppID %s:\n\n"), pptszArgv[2]);
+        ListAppIDAccessACL (pptszArgv[2], fXml);
         return;
     }
 
@@ -622,7 +624,7 @@ void HandleApplicationAccessOption (
 
      _tprintf (_T("Successfully set the Application Access ACL.\n"));
 
-    ListAppIDAccessACL(pptszArgv[2]);
+    ListAppIDAccessACL(pptszArgv[2], FALSE);
 }
 
 void HandleApplicationLaunchAndActivateOption (
@@ -642,9 +644,9 @@ void HandleApplicationLaunchAndActivateOption (
     if (_tcsicmp (pptszArgv[3], _T("LIST")) == 0)
     {
         if (cArgs < 4) ShowUsage (_T("Invalid number of arguments.\n"));
-
-        _tprintf (_T("Launch permission list for AppID %s:\n\n"), pptszArgv[2]);
-        ListAppIDLaunchACL (pptszArgv[2]);
+        BOOL fXml = cArgs > 4 && _tcsicmp (pptszArgv[4], _T("XML")) == 0;
+        if (!fXml) _tprintf (_T("Launch permission list for AppID %s:\n\n"), pptszArgv[2]);
+        ListAppIDLaunchACL (pptszArgv[2], fXml);
         return;
     }
 
@@ -722,7 +724,7 @@ void HandleApplicationLaunchAndActivateOption (
 
      _tprintf (_T("Successfully set the Application Launch ACL.\n"));
 
-    ListAppIDLaunchACL(pptszArgv[2]);
+    ListAppIDLaunchACL(pptszArgv[2], FALSE);
 }
 
 void HandleRunAsOption (
