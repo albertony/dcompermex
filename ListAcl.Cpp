@@ -77,7 +77,8 @@ void DisplayAccess(
     DWORD dwSDType, 
     LPCTSTR tszAccessType, 
     LPCTSTR tszUser, 
-    LPCTSTR tszDomain
+    LPCTSTR tszDomain, 
+    BOOL fXml
     )
 {
 
@@ -100,20 +101,31 @@ void DisplayAccess(
 
         if(fLegacy && dwAccessMask & COM_RIGHTS_EXECUTE)
         {
-            _tprintf (_T("Access %s to %s\\%s.\n"), 
-                      tszAccessType,
-                      tszDomain, tszUser);
+            if (fXml) {
+                _tprintf (_T("<permission security=\"access\" type=\"%s\" domain=\"%s\" user=\"%s\"/>\n"), 
+                          tszAccessType,
+                          tszDomain, tszUser);
+            } else
+                _tprintf (_T("Access %s to %s\\%s.\n"), 
+                          tszAccessType,
+                          tszDomain, tszUser);
 
         }
         else if(!fLegacy && (fLocalAccess || fRemoteAccess))
         {
-
-            _tprintf (_T("%s access %s to %s\\%s.\n"), 
-                      fLocalAccess ? 
-                      fRemoteAccess ? 
-                      _T("Remote and Local") : _T("Local") : _T("Remote") ,
-                      tszAccessType,
-                      tszDomain, tszUser);
+           if (fXml)
+                _tprintf (_T("<permission security=\"access\" local=\"%s\" remote=\"%s\" type=\"%s\" domain=\"%s\" user=\"%s\"/>\n"),
+                          fLocalAccess ? _T("true") : _T("false"),
+                          fRemoteAccess ? _T("true") : _T("false"),
+                          tszAccessType,
+                          tszDomain, tszUser);
+           else
+                _tprintf (_T("%s access %s to %s\\%s.\n"), 
+                          fLocalAccess ? 
+                          fRemoteAccess ? 
+                          _T("Remote and Local") : _T("Local") : _T("Remote") ,
+                          tszAccessType,
+                          tszDomain, tszUser);
          }
     }
     else
@@ -145,32 +157,49 @@ void DisplayAccess(
 
         if(fLegacy && dwAccessMask & COM_RIGHTS_EXECUTE)
         {
-            _tprintf (_T("Launch %s to %s\\%s.\n"), 
-                      tszAccessType,
-                      tszDomain, tszUser);
+            if (fXml)
+                _tprintf (_T("<permission security=\"launch\" type=\"%s\" domain=\"%s\" user=\"%s\"/>\n"), 
+                          tszAccessType,
+                          tszDomain, tszUser);
+            else
+                _tprintf (_T("Launch %s to %s\\%s.\n"), 
+                          tszAccessType,
+                          tszDomain, tszUser);
 
         }
         else 
         {
             if(!fLegacy && (fLocalLaunchAccess || fRemoteLaunchAccess))
             {
-
-                _tprintf (_T("%s launch %s to %s\\%s.\n"), 
-                          fLocalLaunchAccess ? 
-                          fRemoteLaunchAccess ? 
-                          _T("Remote and Local") : _T("Local") : _T("Remote") ,
-                          tszAccessType,
-                          tszDomain, tszUser);
+                if (fXml)
+                    _tprintf (_T("<permission security=\"launch\" local=\"%s\" remote=\"%s\" type=\"%s\" domain=\"%s\" user=\"%s\"/>\n"),
+                              fLocalLaunchAccess ? _T("true") : _T("false"),
+                              fRemoteLaunchAccess ? _T("true") : _T("false"),
+                              tszAccessType,
+                              tszDomain, tszUser);
+                else
+                    _tprintf (_T("%s launch %s to %s\\%s.\n"), 
+                              fLocalLaunchAccess ? 
+                              fRemoteLaunchAccess ? 
+                              _T("Remote and Local") : _T("Local") : _T("Remote") ,
+                              tszAccessType,
+                              tszDomain, tszUser);
              }
              if(!fLegacy && (fLocalActivateAccess || fRemoteActivateAccess))
              {
-
-                _tprintf (_T("%s activation %s to %s\\%s.\n"), 
-                          fLocalActivateAccess ? 
-                          fRemoteActivateAccess ? 
-                          _T("Remote and Local") : _T("Local") : _T("Remote"),
-                          tszAccessType,
-                          tszDomain, tszUser);
+                if (fXml)
+                    _tprintf (_T("<permission security=\"activation\" local=\"%s\" remote=\"%s\" type=\"%s\" domain=\"%s\" user=\"%s\"/>\n"),
+                              fLocalActivateAccess ? _T("true") : _T("false"),
+                              fRemoteActivateAccess ? _T("true") : _T("false"),
+                              tszAccessType,
+                              tszDomain, tszUser);
+                else
+                    _tprintf (_T("%s activation %s to %s\\%s.\n"), 
+                              fLocalActivateAccess ? 
+                              fRemoteActivateAccess ? 
+                              _T("Remote and Local") : _T("Local") : _T("Remote"),
+                              tszAccessType,
+                              tszDomain, tszUser);
              }
 
          }
@@ -186,7 +215,8 @@ void DisplayAccess(
 \*---------------------------------------------------------------------------*/
 void ListACL (
     PACL Acl,
-    DWORD dwSDType
+    DWORD dwSDType,
+    BOOL fXml
     )
 {
     ACL_SIZE_INFORMATION     aclSizeInfo                      = {0};
@@ -219,6 +249,9 @@ void ListACL (
         return;
     }
 
+    if (fXml)
+        _tprintf (_T("<permissions default=\"false\">\n"));
+
     for (i = 0; i < aclSizeInfo.AceCount; i++)
     {
         if (!GetAce (Acl, i, &pvAce))
@@ -243,7 +276,8 @@ void ListACL (
                           dwSDType, 
                           _T("permitted"), 
                           tszUserName, 
-                          tszDomainName);
+                          tszDomainName, 
+                          fXml);
 
         } 
         else if (pAceHeader->AceType == ACCESS_DENIED_ACE_TYPE)
@@ -262,8 +296,12 @@ void ListACL (
                           dwSDType, 
                           _T("denied"), 
                           tszUserName, 
-                          tszDomainName);
+                          tszDomainName, 
+                          fXml);
   
         }
    }
+    if (fXml)
+        _tprintf (_T("</permissions>\n"));
+
 }

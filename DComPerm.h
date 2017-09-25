@@ -50,25 +50,35 @@
 // Wrappers
 //
 DWORD
-ListMachineAccessACL();
+ListMachineAccessACL (
+    BOOL fXml
+);
 
 DWORD
-ListMachineLaunchACL();
+ListMachineLaunchACL (
+    BOOL fXml
+);
 
 DWORD
-ListDefaultAccessACL();
+ListDefaultAccessACL (
+    BOOL fXml
+);
 
 DWORD
-ListDefaultLaunchACL();
+ListDefaultLaunchACL (
+    BOOL fXml
+);
 
 DWORD
 ListAppIDAccessACL (
-    LPTSTR AppID
+    LPTSTR AppID,
+    BOOL fXml
     );
 
 DWORD
 ListAppIDLaunchACL (
-    LPTSTR AppID
+    LPTSTR AppID,
+    BOOL fXml
     );
 
 DWORD
@@ -185,7 +195,8 @@ ListNamedValueSD (
     HKEY hkeyRoot,
     LPTSTR tszKeyName,
     LPTSTR tszValueName,
-    DWORD dwSDType
+    DWORD dwSDType,
+    BOOL fXml
     );
 
 DWORD
@@ -272,7 +283,8 @@ RemovePrincipalFromACL (
 void
 ListACL (
     PACL Acl,
-    DWORD dwSDType
+    DWORD dwSDType,
+    BOOL fXml
     );
 
 DWORD
