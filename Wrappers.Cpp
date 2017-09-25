@@ -547,6 +547,26 @@ DWORD ChangeAppIDAccessACL (
     return dwReturnValue;
 }
 
+DWORD ClearAppIDAccessACL (
+    LPTSTR tszAppID
+    )
+{
+    TCHAR   tszKeyName [256] = {0};
+    DWORD dwReturnValue = ERROR_SUCCESS;
+
+    _stprintf_s (tszKeyName, 
+                 RTL_NUMBER_OF(tszKeyName),
+                 tszAppID [0] == '{' ? _T("APPID\\%s") : _T("APPID\\{%s}"), 
+                 tszAppID);
+
+    dwReturnValue =  
+            ClearNamedValueSD (HKEY_CLASSES_ROOT, 
+                               tszKeyName, 
+                               _T("AccessPermission"));
+
+    return dwReturnValue;
+}
+
 /*---------------------------------------------------------------------------*\
  * NAME: ChangeAppIDLaunchAndActivateACL                                     *
  * --------------------------------------------------------------------------*
@@ -632,6 +652,26 @@ DWORD ChangeAppIDLaunchAndActivateACL (
                                              tszPrincipal, 
                                              ACE_TYPE_ALL);
     }
+
+    return dwReturnValue;
+}
+
+DWORD ClearAppIDLaunchAndActivateACL(
+    LPTSTR tszAppID
+    )
+{
+    TCHAR   tszKeyName [256] = {0};
+    DWORD dwReturnValue = ERROR_SUCCESS;
+
+    _stprintf_s (tszKeyName, 
+                 RTL_NUMBER_OF(tszKeyName),
+                 tszAppID [0] == '{' ? _T("APPID\\%s") : _T("APPID\\{%s}"), 
+                 tszAppID);
+
+    dwReturnValue =  
+            ClearNamedValueSD (HKEY_CLASSES_ROOT, 
+                               tszKeyName, 
+                               _T("LaunchPermission"));
 
     return dwReturnValue;
 }

@@ -962,3 +962,88 @@ CLEANUP:
 
     return dwReturnValue;
 }
+
+/*---------------------------------------------------------------------------*\
+ * NAME: ClearNamedValueSD 
+ * --------------------------------------------------------------------------*
+ * DESCRIPTION: Retrieves the designated security descriptor from the
+ * registry and removes all ACLs from it.
+\*---------------------------------------------------------------------------*/
+DWORD ClearNamedValueSD (
+    HKEY hkeyRoot,
+    LPTSTR tszKeyName,
+    LPTSTR tszValueName
+    )
+{
+    DWORD               dwReturnValue    = ERROR_SUCCESS;
+    SECURITY_DESCRIPTOR *pSD             = NULL;
+    SECURITY_DESCRIPTOR *psdSelfRelative = NULL;
+    SECURITY_DESCRIPTOR *psdAbsolute     = NULL;
+    DWORD               cbSecurityDesc   = 0;
+    BOOL                fPresent         = FALSE;
+    BOOL                fDefaultDACL     = FALSE;
+    PACL                pDacl            = NULL;
+    BOOL                fNewSD           = FALSE;
+
+    dwReturnValue = GetNamedValueSD (hkeyRoot, tszKeyName, tszValueName, &pSD, &fNewSD);
+
+    // Get security descriptor from registry or create a new one
+    if (!GetSecurityDescriptorDacl (pSD, &fPresent, &pDacl, &fDefaultDACL))
+    {
+        dwReturnValue = GetLastError();
+        goto CLEANUP;
+    }
+
+    if (!InitializeAcl(pDacl, sizeof(ACL), ACL_REVISION))
+    {
+        dwReturnValue = GetLastError();
+        goto CLEANUP;
+    }
+
+    // Make the security descriptor absolute if it isn't new
+    if (!fNewSD)
+    {
+        dwReturnValue = MakeSDAbsolute ((PSECURITY_DESCRIPTOR) pSD, (PSECURITY_DESCRIPTOR *) &psdAbsolute);
+        if (dwReturnValue != ERROR_SUCCESS) goto CLEANUP;
+    }
+    else
+    {
+        psdAbsolute = pSD;
+    }
+    // Set the discretionary ACL on the security descriptor
+    if (!SetSecurityDescriptorDacl (psdAbsolute, TRUE, pDacl, FALSE))
+    {
+        dwReturnValue = GetLastError();
+        goto CLEANUP;
+    }
+
+    // Make the security descriptor self-relative so that we can
+    // store it in the registry
+    cbSecurityDesc = 0;
+    MakeSelfRelativeSD (psdAbsolute, psdSelfRelative, &cbSecurityDesc);
+
+    psdSelfRelative = (SECURITY_DESCRIPTOR *) malloc (cbSecurityDesc);
+
+    if(!psdSelfRelative)
+    {
+        dwReturnValue = ERROR_OUTOFMEMORY;
+        goto CLEANUP;
+    }
+
+    if (!MakeSelfRelativeSD (psdAbsolute, psdSelfRelative, &cbSecurityDesc))
+    {
+        dwReturnValue = GetLastError();
+        goto CLEANUP;
+    }
+
+    // Store the security descriptor in the registry
+    dwReturnValue = SetNamedValueSD (hkeyRoot, tszKeyName, tszValueName, psdSelfRelative);
+
+CLEANUP:
+
+    if(pSD) free (pSD);
+    if(psdSelfRelative) free (psdSelfRelative);
+    if(psdAbsolute && pSD != psdAbsolute) free (psdAbsolute);
+
+    return dwReturnValue;
+}
