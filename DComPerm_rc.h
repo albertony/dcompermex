@@ -1,7 +1,7 @@
 #define COMPANY_NAME "albertony"
 #define COMPANY_WEB "github.com/albertony/dcompermex"
-#define PRODUCT_NAME "DcomPermEx"
-#define APPLICATION_NAME "DcomPermEx"
+#define PRODUCT_NAME "DComPermEx"
+#define APPLICATION_NAME "DComPermEx"
 #define APPLICATION_FILENAME APPLICATION_NAME ".exe"
 #define APPLICATION_DESCRIPTION "DCOM permission command line utility"
 
