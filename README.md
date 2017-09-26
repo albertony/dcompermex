@@ -15,10 +15,9 @@ Microsoft has never published the utility in any other form than source code,
 so if you don't want to build it yourself you can use my latest build from the
 releases section, and you will get those [additional features](#extended-features) included as well.
 
-The application is single-binary, and portable in the sense that it does not save any
-configuration other than directly changes in the Windows DCOM configuration.
-The only dependency is Visual C++ Redistributable for the compiler used, currently
-Visual Studio 2015 Update 3.
+The application is stand-alone single-binary, with the Visual C++ runtime libraries
+statically linked in. This makes it easy to copy around where you need it, and also
+easy to use in an installer custom action.
 
 ### Extended features
 
