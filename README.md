@@ -1,5 +1,5 @@
 DComPermEx
-====
+==========
 
 Command-line alternative to Windows built-in "Component Services" management console,
 including the "DCOM Config" for administration of DCOM applications, accessible from
@@ -12,12 +12,35 @@ classic desktop applications. Originally published in Windows 7 SDK, but also
 available on Microsoft's GitHub account: https://github.com/Microsoft/Windows-classic-samples/tree/master/Samples/Win7Samples/com/fundamentals/dcom/dcomperm.
 
 Microsoft has never published the utility in any other form than source code,
-so if you don't want to build it yourself you can use my latest build from the
-releases section, and you will get those [additional features](#extended-features) included as well.
+but I do build and release it from my separate branch containing the original
+untouched source code (but with my own build configuration). If you for some
+reason don't want my latest version with [additional features](#extended-features)
+you can use my builds of the original version.
 
-The application is stand-alone single-binary, with the Visual C++ runtime libraries
-statically linked in. This makes it easy to copy around where you need it, and also
-easy to use in an installer custom action.
+The application is a stand-alone single-binary, and I build it with the Visual C++
+runtime libraries statically linked in - which makes it easy to copy around where
+you need it, and also easy to use in an installer custom action.
+
+Editions
+========
+
+## DComPerm
+
+The releases containing only the original source code from Microsoft
+will contain `DComPerm.exe` versioned 1.0 etc.
+
+### Changelog
+
+#### Release 1.0
+
+* Migrated build configuration to Visual Studio 2015 Update 3.
+* Statically linking the Visual C++ run-time library to avoid any dependencies.
+* Setting version and other resource info.
+* Started with a copy of the original source code from [Microsoft's Windows-classic-samples](https://github.com/Microsoft/Windows-classic-samples/tree/master/Samples/Win7Samples/com/fundamentals/dcom/dcomperm).
+
+## DComPermEx
+
+My extended version is released as `DComPermEx.exe` and versioned 2.0 etc.
 
 ### Extended features
 
@@ -41,6 +64,19 @@ remove all others from the default set. To simplify this I introduced a new opti
 permissions to "none", which clears the ACL - effectively setting deny for everyone.
 Due to risk of getting yourself into problems, this option is only possible on specific AppID,
 and even then; please use with care!
+
+### Changelog
+
+#### Release 2.0
+
+* Added option to set application permissions to none, which clears the ACL effectively setting deny for everyone.
+Due to risk of getting yourself into problems, this option is only possible on specific AppID, and
+even then use with care!
+* Added list option to return permission lists in XML format.
+* Migrated build configuration to Visual Studio 2015 Update 3.
+* Statically linking the Visual C++ run-time library to avoid any dependencies.
+* Setting version and other resource info.
+* Started with a copy of the original source code from [Microsoft's Windows-classic-samples](https://github.com/Microsoft/Windows-classic-samples/tree/master/Samples/Win7Samples/com/fundamentals/dcom/dcomperm).
 
 Usage
 =====
@@ -119,23 +155,6 @@ Contributing
 
 See the original [readme.htm](http://htmlpreview.github.io/?https://github.com/albertony/dcompermex/blob/master/readme.htm)
 for basic introduction to the source code.
-
-History
-=======
-
-### Version 0.1.2
-
-Added option to set application permissions to none, which clears the ACL effectively setting deny for everyone.
-Due to risk of getting yourself into problems, this option is only possible on specific AppID, and
-even then use with care!
-
-### Version 0.1.1
-
-Added list option to return as xml
-
-### Version 0.1.0
-
-The initial version with untouched copy of source code from [Microsoft's Windows-classic-samples](https://github.com/Microsoft/Windows-classic-samples/tree/master/Samples/Win7Samples/com/fundamentals/dcom/dcomperm)
 
 License
 =======
