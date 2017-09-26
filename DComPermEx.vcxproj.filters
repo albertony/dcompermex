@@ -46,7 +46,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="DcomPerm.rc">
+    <ResourceCompile Include="DComPerm.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

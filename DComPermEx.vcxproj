@@ -94,7 +94,7 @@
     <ClCompile Include="Wrappers.Cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="DcomPerm.rc" />
+    <ResourceCompile Include="DComPerm.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

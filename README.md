@@ -1,4 +1,4 @@
-DcomPermEx
+DComPermEx
 ====
 
 Command-line alternative to Windows built-in "Component Services" management console,
@@ -6,7 +6,7 @@ including the "DCOM Config" for administration of DCOM applications, accessible 
 the "Administrative Tools" Control Panel, `dcomcnfg.exe`, or
 `mmc.exe C:\WINDOWS\system32\comexp.msc`.
 
-DcomPermEx is an extended version of Microsoft's DCOM permission command line utility DcomPerm,
+DComPermEx is an extended version of Microsoft's DCOM permission command line utility DComPerm,
 published only as source code - a sample that demonstrate the API used in Windows
 classic desktop applications. Originally published in Windows 7 SDK, but also
 available on Microsoft's GitHub account: https://github.com/Microsoft/Windows-classic-samples/tree/master/Samples/Win7Samples/com/fundamentals/dcom/dcomperm.
@@ -51,14 +51,14 @@ The main purpose of this utility is to be able to script setting of DCOM permiss
 But I also found it very useful when I unintentionally removed the special group "SELF"
 from the machine level access permissions in DCOM Config. I could not find any way
 to add that special group back into the permission list using the DCOM Config user
-interface. DcomPerm(Ex) to the rescue:
+interface. DComPerm(Ex) to the rescue:
 
 `DComPermEx.exe -da set "NT AUTHORITY\SELF" permit level:l,r`
 
 The complete syntax description as reported by the command line utility itself:
  
 ```
-Syntax: DcomPermEx.exe <option> [...]
+Syntax: DComPermEx.exe <option> [...]
 
 Options:
    -ma <"set" or "remove"> <Principal Name> ["permit" or "deny"] ["level:l,r"]
