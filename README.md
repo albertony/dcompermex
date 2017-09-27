@@ -1,10 +1,12 @@
 DComPermEx
 ==========
 
-Command-line alternative to Windows built-in "Component Services" management console,
-including the "DCOM Config" for administration of DCOM applications, accessible from
-the "Administrative Tools" Control Panel, `dcomcnfg.exe`, or
-`mmc.exe C:\WINDOWS\system32\comexp.msc`.
+Command-line utility for setting launch, activate and access permissions for COM servers,
+as well as the idenity it should run as. Normally these tasks must be done manually
+using Windows' built-in "DCOM Config" utility, part of the "Component Services" management console,
+accessible from the "Administrative Tools" Control Panel, `dcomcnfg.exe`, or `mmc.exe C:\WINDOWS\system32\comexp.msc`.
+You can dive into WMI, PowerShell etc for changing the configuration from command line,
+but often a good old command line application is the easiest and best solution.
 
 DComPermEx is an extended version of Microsoft's DCOM permission command line utility DComPerm,
 published only as source code - a sample that demonstrate the API used in Windows
@@ -77,6 +79,11 @@ even then use with care!
 * Statically linking the Visual C++ run-time library to avoid any dependencies.
 * Setting version and other resource info.
 * Started with a copy of the original source code from [Microsoft's Windows-classic-samples](https://github.com/Microsoft/Windows-classic-samples/tree/master/Samples/Win7Samples/com/fundamentals/dcom/dcomperm).
+
+System requirements
+===================
+
+The current build configuration mean Windows Vista and Server 2008 (or newer) are supported.
 
 Usage
 =====
