@@ -69,6 +69,12 @@ and even then; please use with care!
 
 ### Changelog
 
+#### Release 2.0.1
+
+* Migrated build configuration to Visual Studio 2017, and set more explicit minimum
+system requirements in build configuration (but minimum is the same
+Windows Vista / Server 2008 as in previous version).
+
 #### Release 2.0
 
 * Added option to set application permissions to none, which clears the ACL effectively setting deny for everyone.

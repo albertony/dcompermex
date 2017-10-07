@@ -21,6 +21,9 @@
     <ClInclude Include="DComPerm_rc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AclMgmt.Cpp">
