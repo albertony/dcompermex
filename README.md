@@ -69,6 +69,14 @@ and even then; please use with care!
 
 ### Changelog
 
+#### Release 2.0.2
+
+* Fix issue where wrong user account information could be shown, as a result of LookupAccountSid call failing.
+* Migrated build configuration to Visual Studio 2022 / Visual C++ 14.30.
+* Changed build configuration from Multi-Byte Character Set to Unicode Character Set.
+* Added 64-bit build configuration.
+* Output text according to system locale.
+
 #### Release 2.0.1
 
 * Migrated build configuration to Visual Studio 2017, and set more explicit minimum
