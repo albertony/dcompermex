@@ -7,6 +7,7 @@
 
 #include "targetver.h"
 #include <windows.h>
+#include <locale>
 #include <stdio.h>
 #include <conio.h>
 #include <tchar.h>
@@ -829,6 +830,7 @@ extern "C" void _tmain (
     TCHAR **pptszArgv
     )
 {
+    std::locale::global(std::locale(""));
 
     if (cArgs < 2) ShowWrongUsage (_T("No option specified."));
 
