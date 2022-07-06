@@ -152,16 +152,6 @@ DWORD SetRunAsPassword (
     LPTSTR Password
     );
 
-DWORD GetRunAsPassword (
-    LPTSTR AppID,
-    LPTSTR Password
-    );
-
-DWORD SetRunAsPassword (
-    LPTSTR AppID,
-    LPTSTR Password
-    );
-
 //
 // Internal functions
 //
