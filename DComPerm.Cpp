@@ -68,10 +68,11 @@ void ShowUsage ( )
     _getch();
     _tprintf (_T("\n\n"));
 
+    _tprintf (_T("   -runas <AppID>\n"));
     _tprintf (_T("   -runas <AppID> <Principal Name> <Password>\n"));
     _tprintf (_T("   -runas <AppID> \"Interactive User\"\n"));
     _tprintf (_T("   -runas <AppID> \"Launching User\"\n"));
-    _tprintf (_T("       Set the RunAs information for a specific AppID\n\n"));
+    _tprintf (_T("       Get or set the RunAs information for a specific AppID\n\n"));
 
     _tprintf(_T("   -help\n"));
     _tprintf(_T("   -version\n"));
@@ -775,54 +776,97 @@ void HandleRunAsOption (
     TCHAR tszAppID [SIZE_NAME_BUFFER]   = {0};
     TCHAR tszKeyName [SIZE_NAME_BUFFER] = {0};
 
-    if (cArgs < 4) ShowWrongUsage (_T("Invalid number of arguments."));
+    if (cArgs < 3) ShowWrongUsage(_T("Invalid number of arguments."));
 
-    _stprintf_s (tszAppID, RTL_NUMBER_OF(tszAppID), pptszArgv [2][0] == '{' ? _T("%s") : _T("{%s}"), pptszArgv [2]);
-    _stprintf_s (tszKeyName, RTL_NUMBER_OF(tszKeyName), _T("APPID\\%s"), tszAppID);
+    _stprintf_s(tszAppID, RTL_NUMBER_OF(tszAppID), pptszArgv[2][0] == '{' ? _T("%s") : _T("{%s}"), pptszArgv[2]);
+    _stprintf_s(tszKeyName, RTL_NUMBER_OF(tszKeyName), _T("APPID\\%s"), tszAppID);
 
-    dwReturnValue = RegOpenKeyEx (HKEY_CLASSES_ROOT, tszKeyName, 0, KEY_ALL_ACCESS, &hkeyRegistry);
-    if (dwReturnValue != ERROR_SUCCESS)
+    if (cArgs < 4)
     {
-        Error (_T("ERROR: Cannot open AppID registry key."), dwReturnValue);
-    }
-
-    if (_tcsicmp (pptszArgv[3], _T("LAUNCHING USER")) == 0)
-    {
-        dwReturnValue = RegDeleteValue(hkeyRegistry, _T("RunAs"));
-
-        if(dwReturnValue == ERROR_FILE_NOT_FOUND)
+        dwReturnValue = RegOpenKeyEx (HKEY_CLASSES_ROOT, tszKeyName, 0, KEY_READ, &hkeyRegistry);
+        if (dwReturnValue != ERROR_SUCCESS)
         {
-            dwReturnValue = ERROR_SUCCESS;
-        }
-        else if (dwReturnValue != ERROR_SUCCESS)
-        {
-            Error (_T("ERROR: Cannot remove RunAs registry value."), dwReturnValue);
+            Error (_T("ERROR: Cannot open AppID registry key."), dwReturnValue);
         }
 
+        TCHAR tszPrincipalName[SIZE_NAME_BUFFER] = { 0 };
+        TCHAR tszPassword[SIZE_NAME_BUFFER] = { 0 };
+        DWORD dwSize = SIZE_NAME_BUFFER;
+
+        dwReturnValue = RegGetValue (hkeyRegistry, NULL, _T("RunAs"), RRF_RT_ANY, NULL, tszPrincipalName, &dwSize);
+        if (dwReturnValue == ERROR_SUCCESS)
+        {
+            _tprintf (_T("Principal Name: %s\n"), tszPrincipalName);
+        }
+        else if (dwReturnValue == ERROR_FILE_NOT_FOUND)
+        {
+            _tprintf (_T("Principal Name: Launching User\n"));
+        }
+        else
+        {
+            Error (_T("ERROR: Cannot get RunAs registry value."), dwReturnValue);
+        }
+
+        if (_tcsicmp (tszPrincipalName, _T("INTERACTIVE USER")) != 0)
+        {
+            dwReturnValue = GetRunAsPassword(pptszArgv[2], tszPassword);
+            if (dwReturnValue == ERROR_SUCCESS)
+            {
+                _tprintf (_T("Password: %s\n"), tszPassword);
+            }
+            else if (dwReturnValue == ERROR_FILE_NOT_FOUND)
+            {
+                _tprintf (_T("Password: N/A\n"));
+            }
+            else
+            {
+                Error (_T("ERROR: Cannot get RunAs password."), dwReturnValue);
+            }
+        }
     }
     else
     {
-        if (_tcsicmp (pptszArgv[3], _T("INTERACTIVE USER")) != 0)
-        {
-            if (cArgs < 5) ShowWrongUsage (_T("Invalid number of arguments."));
-
-            dwReturnValue = SetRunAsPassword (pptszArgv[2], pptszArgv[3], pptszArgv[4]);
-            if (dwReturnValue != ERROR_SUCCESS)
-            {
-                Error (_T("ERROR: Cannot set RunAs password."), dwReturnValue);
-            }
-        }
-
-        dwReturnValue = RegSetValueEx (hkeyRegistry, _T("RunAs"), 0, REG_SZ, (LPBYTE) pptszArgv [3], (DWORD)_tcslen (pptszArgv[3]) * sizeof (TCHAR));
+        dwReturnValue = RegOpenKeyEx (HKEY_CLASSES_ROOT, tszKeyName, 0, KEY_ALL_ACCESS, &hkeyRegistry);
         if (dwReturnValue != ERROR_SUCCESS)
         {
-            Error (_T("ERROR: Cannot set RunAs registry value."), dwReturnValue);
+            Error (_T("ERROR: Cannot open AppID registry key."), dwReturnValue);
+        }
+
+        if (_tcsicmp (pptszArgv[3], _T("LAUNCHING USER")) == 0)
+        {
+            dwReturnValue = RegDeleteValue(hkeyRegistry, _T("RunAs"));
+
+            if(dwReturnValue == ERROR_FILE_NOT_FOUND)
+            {
+                dwReturnValue = ERROR_SUCCESS;
+            }
+            else if (dwReturnValue != ERROR_SUCCESS)
+            {
+                Error (_T("ERROR: Cannot remove RunAs registry value."), dwReturnValue);
+            }
+        }
+        else
+        {
+            if (_tcsicmp (pptszArgv[3], _T("INTERACTIVE USER")) != 0)
+            {
+                if (cArgs < 5) ShowWrongUsage (_T("Invalid number of arguments."));
+
+                dwReturnValue = SetRunAsPassword (pptszArgv[2], pptszArgv[3], pptszArgv[4]);
+                if (dwReturnValue != ERROR_SUCCESS)
+                {
+                    Error (_T("ERROR: Cannot set RunAs password."), dwReturnValue);
+                }
+            }
+
+            dwReturnValue = RegSetValueEx (hkeyRegistry, _T("RunAs"), 0, REG_SZ, (LPBYTE) pptszArgv[3], (DWORD)_tcslen (pptszArgv[3]) * sizeof (TCHAR));
+            if (dwReturnValue != ERROR_SUCCESS)
+            {
+                Error (_T("ERROR: Cannot set RunAs registry value."), dwReturnValue);
+            }
         }
     }
-        
 
     if(hkeyRegistry) RegCloseKey (hkeyRegistry);
-    
 }
 
 extern "C" void _tmain (
