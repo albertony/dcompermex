@@ -66,7 +66,7 @@ void ShowUsage ( )
 
     _tprintf (_T("Press any key to continue. . ."));
     _getch();
-    _tprintf (_T("\r\r"));
+    _tprintf (_T("\n\n"));
 
     _tprintf (_T("   -runas <AppID> <Principal Name> <Password>\n"));
     _tprintf (_T("   -runas <AppID> \"Interactive User\"\n"));
