@@ -807,21 +807,18 @@ void HandleRunAsOption (
             Error (_T("ERROR: Cannot get RunAs registry value."), dwReturnValue);
         }
 
-        if (_tcsicmp (tszPrincipalName, _T("INTERACTIVE USER")) != 0)
+        dwReturnValue = GetRunAsPassword(pptszArgv[2], tszPassword);
+        if (dwReturnValue == ERROR_SUCCESS)
         {
-            dwReturnValue = GetRunAsPassword(pptszArgv[2], tszPassword);
-            if (dwReturnValue == ERROR_SUCCESS)
-            {
-                _tprintf (_T("Password: %s\n"), tszPassword);
-            }
-            else if (dwReturnValue == ERROR_FILE_NOT_FOUND)
-            {
-                _tprintf (_T("Password: N/A\n"));
-            }
-            else
-            {
-                Error (_T("ERROR: Cannot get RunAs password."), dwReturnValue);
-            }
+            _tprintf (_T("Password: %s\n"), tszPassword);
+        }
+        else if (dwReturnValue == ERROR_FILE_NOT_FOUND)
+        {
+            _tprintf (_T("Password: N/A\n"));
+        }
+        else
+        {
+            Error (_T("ERROR: Cannot get RunAs password."), dwReturnValue);
         }
     }
     else
@@ -835,7 +832,6 @@ void HandleRunAsOption (
         if (_tcsicmp (pptszArgv[3], _T("LAUNCHING USER")) == 0)
         {
             dwReturnValue = RegDeleteValue(hkeyRegistry, _T("RunAs"));
-
             if(dwReturnValue == ERROR_FILE_NOT_FOUND)
             {
                 dwReturnValue = ERROR_SUCCESS;
@@ -844,10 +840,32 @@ void HandleRunAsOption (
             {
                 Error (_T("ERROR: Cannot remove RunAs registry value."), dwReturnValue);
             }
+
+            dwReturnValue = RemoveRunAsPassword(pptszArgv[2]);
+            if(dwReturnValue == ERROR_FILE_NOT_FOUND)
+            {
+                dwReturnValue = ERROR_SUCCESS;
+            }
+            else if (dwReturnValue != ERROR_SUCCESS)
+            {
+                Error (_T("ERROR: Cannot remove RunAs password."), dwReturnValue);
+            }
         }
         else
         {
-            if (_tcsicmp (pptszArgv[3], _T("INTERACTIVE USER")) != 0)
+            if (_tcsicmp (pptszArgv[3], _T("INTERACTIVE USER")) == 0)
+            {
+                dwReturnValue = RemoveRunAsPassword(pptszArgv[2]);
+                if(dwReturnValue == ERROR_FILE_NOT_FOUND)
+                {
+                    dwReturnValue = ERROR_SUCCESS;
+                }
+                else if (dwReturnValue != ERROR_SUCCESS)
+                {
+                    Error (_T("ERROR: Cannot remove RunAs password."), dwReturnValue);
+                }
+            }
+            else
             {
                 if (cArgs < 5) ShowWrongUsage (_T("Invalid number of arguments."));
 

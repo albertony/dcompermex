@@ -152,6 +152,10 @@ DWORD SetRunAsPassword (
     LPTSTR Password
     );
 
+DWORD RemoveRunAsPassword (
+    LPTSTR AppID
+    );
+
 //
 // Internal functions
 //

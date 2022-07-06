@@ -73,7 +73,7 @@ DWORD GetRunAsPassword (
                                           &lsaKeyString,
                                           &lsaPasswordString);
                                           
-    dwReturnValue = LsaNtStatusToWinError(dwReturnValue); 
+    dwReturnValue = LsaNtStatusToWinError(dwReturnValue);
 
     if (dwReturnValue != ERROR_SUCCESS) goto CLEANUP;
 
@@ -155,7 +155,7 @@ DWORD SetRunAsPassword (
                                  POLICY_CREATE_SECRET,
                                  &hPolicy);
 
-    dwReturnValue = LsaNtStatusToWinError(dwReturnValue); 
+    dwReturnValue = LsaNtStatusToWinError(dwReturnValue);
 
     if (dwReturnValue != ERROR_SUCCESS) goto CLEANUP;
 
@@ -164,12 +164,76 @@ DWORD SetRunAsPassword (
                                        &lsaKeyString,
                                        &lsaPasswordString);
 
-    dwReturnValue = LsaNtStatusToWinError(dwReturnValue); 
+    dwReturnValue = LsaNtStatusToWinError(dwReturnValue);
 
     if (dwReturnValue != ERROR_SUCCESS) goto CLEANUP;
 
 
     dwReturnValue = SetAccountRights (tszPrincipal, _T("SeBatchLogonRight"));
+    if (dwReturnValue != ERROR_SUCCESS) goto CLEANUP;
+
+CLEANUP:
+
+    if(hPolicy) LsaClose (hPolicy);
+
+    return dwReturnValue;
+}
+
+/*---------------------------------------------------------------------------*\
+ * NAME: RemoveRunAsPassword                                                 *
+ * --------------------------------------------------------------------------*
+ * DESCRIPTION: Removes the RunAs password for an AppID.                     *
+ * --------------------------------------------------------------------------*
+ *  ARGUMENTS:                                                               *
+ *                                                                           *
+ *  tszAppID - The Application ID you wish to modify                         *
+ *  (e.g. "{99999999-9999-9999-9999-00AA00BBF7C7}")                          *
+ * --------------------------------------------------------------------------*
+ *  RETURNS: WIN32 Error Code                                                *
+\*---------------------------------------------------------------------------*/
+DWORD RemoveRunAsPassword (
+    LPTSTR tszAppID
+    )
+{
+    LSA_OBJECT_ATTRIBUTES objectAttributes             = {0};
+    HANDLE                hPolicy                      = NULL;
+    LSA_UNICODE_STRING    lsaKeyString                 = {0};
+    WCHAR                 wszKey [4 + GUIDSTR_MAX + 1] = {0};
+    WCHAR                 wszAppID [GUIDSTR_MAX + 1]   = {0};
+    DWORD                 dwReturnValue                = ERROR_SUCCESS;
+
+#ifndef UNICODE
+    STR2UNI (wszAppID, tszAppID);
+#else
+    StringCchCopy (wszAppID, RTL_NUMBER_OF(wszAppID), tszAppID);
+#endif
+
+    StringCchCopyW(wszKey, RTL_NUMBER_OF(wszKey), L"SCM:");
+    StringCchCatW(wszKey, RTL_NUMBER_OF(wszKey), wszAppID);
+
+    lsaKeyString.Length = (USHORT) ((wcslen (wszKey) + 1) * sizeof (WCHAR));
+    lsaKeyString.MaximumLength = sizeof(wszKey);
+    lsaKeyString.Buffer = wszKey;
+
+    // Open the local security policy
+    objectAttributes.Length = sizeof (LSA_OBJECT_ATTRIBUTES);
+
+    dwReturnValue = LsaOpenPolicy (NULL,
+                                 &objectAttributes,
+                                 POLICY_CREATE_SECRET,
+                                 &hPolicy);
+
+    dwReturnValue = LsaNtStatusToWinError(dwReturnValue);
+
+    if (dwReturnValue != ERROR_SUCCESS) goto CLEANUP;
+
+    // Remove the user's password (passing NULL deletes any private data stored under the key and deletes the key)
+    dwReturnValue = LsaStorePrivateData (hPolicy,
+                                       &lsaKeyString,
+                                       NULL);
+
+    dwReturnValue = LsaNtStatusToWinError(dwReturnValue);
+
     if (dwReturnValue != ERROR_SUCCESS) goto CLEANUP;
 
 CLEANUP:
