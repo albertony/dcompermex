@@ -69,6 +69,12 @@ and even then; please use with care!
 
 ### Changelog
 
+#### Release 2.0.3
+
+* Automatically remove stored runas password when setting Interactive or Launching user.
+* Add support for retrieving runas information.
+* Minor improvement in usage help text.
+
 #### Release 2.0.2
 
 * Fix issue where wrong user account information could be shown, as a result of LookupAccountSid call failing.
